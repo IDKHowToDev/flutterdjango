@@ -16,16 +16,17 @@ class Department {
     );
   }
 }
+
 class DepInfo extends StatefulWidget {
-  const DepInfo({super.key});
+  const DepInfo({Key? key}) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
   _DepInfoState createState() => _DepInfoState();
 }
 
 class _DepInfoState extends State<DepInfo> {
   List<Department> departments = [];
+  List<PostDep> posts = [];
 
   Future<List<Department>> fetchDepartments() async {
     var url = "http://127.0.0.1:8000/api/departements/";
@@ -41,6 +42,20 @@ class _DepInfoState extends State<DepInfo> {
     }
   }
 
+  Future<List<PostDep>> fetchAllPosts() async {
+    var url = "http://127.0.0.1:8000/api/postdepartements/";
+    var response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      var postsJson = json.decode(response.body) as List;
+      List<PostDep> postsList =
+          postsJson.map((b) => PostDep.fromJson(b)).toList();
+      return postsList;
+    } else {
+      throw Exception('Failed to load posts');
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -49,36 +64,59 @@ class _DepInfoState extends State<DepInfo> {
         departments = departmentsList;
       });
     });
+    fetchAllPosts().then((postsList) {
+      setState(() {
+        posts = postsList;
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Departments'),
-        ),
-        body: ListView.builder(
-          itemCount: departments.length,
-          itemBuilder: (context, index) {
-            return GestureDetector(
-              onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => PostDepPage(
-                    departmentId: departments[index].id,
-                  ),
-                ),
-              );
-            },
-              child: ListTile(
-                title: Text(departments[index].name),
-                subtitle: Text('ID: ${departments[index].id}'),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Departments'),
+      ),
+      drawer: Drawer(
+        child: Column(
+          children: [
+            const DrawerHeader(
+              child: Text('Drawer Header'),
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: departments.length,
+                itemBuilder: (context, index) {
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PostDepPage(
+                            departmentId: departments[index].id,
+                          ),
+                        ),
+                      );
+                    },
+                    child: ListTile(
+                      title: Text(departments[index].name),
+                      subtitle: Text('ID: ${departments[index].id}'),
+                    ),
+                  );
+                },
               ),
-            );
-          },
+            ),
+          ],
         ),
+      ),
+      body: ListView.builder(
+        itemCount: posts.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Text(posts[index].title),
+            subtitle: Text(posts[index].content),
+          );
+        },
       ),
     );
   }

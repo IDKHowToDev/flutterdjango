@@ -16,20 +16,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-/*
-class A extends StatefulWidget {
-  const A({super.key});
-
-  @override
-  State<A> createState() => _AState();
-}
-
-class _AState extends State<A> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('HI'),),
-      body: const Text('HI'),
-    );
-  }
-}*/

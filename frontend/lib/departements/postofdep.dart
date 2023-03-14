@@ -8,7 +8,12 @@ class PostDep {
   final String content;
   final int dep;
 
-  PostDep({required this.id, required this.title, required this.content, required this.dep});
+  PostDep({
+    required this.id,
+    required this.title,
+    required this.content,
+    required this.dep,
+  });
 
   factory PostDep.fromJson(Map<String, dynamic> json) {
     return PostDep(
@@ -18,7 +23,17 @@ class PostDep {
       dep: json['dep'],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'content': content,
+      'dep': dep,
+    };
+  }
 }
+
 
 class PostDepPage extends StatefulWidget {
   final int departmentId;
