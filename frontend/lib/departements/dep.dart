@@ -5,14 +5,40 @@ import 'postofdep.dart';
 
 class Department {
   final int id;
-  final String name;
+  final String title, description;
+  final List<String> images;
+  late List<Color> colors;
+  final double rating, price;
+  final bool isFavourite, isPopular;
 
-  Department({required this.id, required this.name});
+  Department({
+    required this.id,
+    required this.images,
+    // this.colors= colors.isEmpty? [Colors.amber] : this.colors=Colors;
+    required this.colors,
+    this.rating = 0.0,
+    this.isFavourite = false,
+    this.isPopular = false,
+    required this.title,
+    required this.price,
+    required this.description,
+  });
 
   factory Department.fromJson(Map<String, dynamic> json) {
     return Department(
-      id: json['id'],
-      name: json['name'],
+      id: json["id"],
+      title: json["title"],
+      description: json["description"],
+      price: json["price"],
+      colors: [
+        const Color(0xFFF6625E),
+        const Color(0xFF836DB8),
+        const Color(0xFFDECB9C),
+        Colors.white,
+      ],
+      rating: json["rating"]?.toDouble(),
+      // images: List<String>.from(json["images"].map((x) => x)),
+      images: List<String>.from(json["images"].map((x) => x.toString())),
     );
   }
 }
@@ -29,20 +55,20 @@ class _DepInfoState extends State<DepInfo> {
   List<PostDep> posts = [];
 
   Future<List<Department>> fetchDepartments() async {
-    var url = "http://127.0.0.1:8000/api/departements/";
+    var url = "https://dummyjson.com/products";
     var response = await http.get(Uri.parse(url));
 
     if (response.statusCode == 200) {
       var departmentsJson = json.decode(response.body) as List;
       List<Department> departmentsList =
-          departmentsJson.map((dept) => Department.fromJson(dept)).toList();
-      return departmentsList;
+          departmentsJson.map((dept) => Department.fromJson(dept[0])).toList();
+      return Future.value(departmentsList);
     } else {
       throw Exception('Failed to load departments');
     }
   }
 
-  Future<List<PostDep>> fetchAllPosts() async {
+/*  Future<List<PostDep>> fetchAllPosts() async {
     var url = "http://127.0.0.1:8000/api/postdepartements/";
     var response = await http.get(Uri.parse(url));
 
@@ -54,7 +80,7 @@ class _DepInfoState extends State<DepInfo> {
     } else {
       throw Exception('Failed to load posts');
     }
-  }
+  }*/
 
   @override
   void initState() {
@@ -64,11 +90,11 @@ class _DepInfoState extends State<DepInfo> {
         departments = departmentsList;
       });
     });
-    fetchAllPosts().then((postsList) {
+    /*fetchAllPosts().then((postsList) {
       setState(() {
         posts = postsList;
       });
-    });
+    });*/
   }
 
   @override
@@ -99,7 +125,7 @@ class _DepInfoState extends State<DepInfo> {
                       );
                     },
                     child: ListTile(
-                      title: Text(departments[index].name),
+                      title: Text(departments[index].title),
                       subtitle: Text('ID: ${departments[index].id}'),
                     ),
                   );
